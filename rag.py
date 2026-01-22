@@ -72,8 +72,11 @@ class SimpleVectorStore:
     def save(self, path: str):
         """Save store to disk."""
         try:
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(path) if os.path.dirname(path) else ".", exist_ok=True)
             with open(path, 'wb') as f:
                 pickle.dump({'texts': self.texts, 'embeddings': self.embeddings_cache}, f)
+            logger.info(f"Vector store saved to {path}")
         except Exception as e:
             logger.error(f"Error saving vector store: {e}")
     
@@ -81,11 +84,16 @@ class SimpleVectorStore:
     def load(path: str, embeddings):
         """Load store from disk."""
         try:
+            if not os.path.exists(path):
+                logger.warning(f"Vector store file not found at {path}, creating new store")
+                return SimpleVectorStore(embeddings)
+            
             with open(path, 'rb') as f:
                 data = pickle.load(f)
             store = SimpleVectorStore(embeddings)
-            store.texts = data['texts']
-            store.embeddings_cache = data['embeddings']
+            store.texts = data.get('texts', [])
+            store.embeddings_cache = data.get('embeddings', [])
+            logger.info(f"Vector store loaded from {path}")
             return store
         except Exception as e:
             logger.error(f"Error loading vector store: {e}")
@@ -129,26 +137,41 @@ def create_or_load_vector_store(texts: List[str] = None):
         # Load existing vector store if available
         if os.path.exists(VECTOR_STORE_PATH) and texts is None:
             logger.info("Loading existing vector store")
-            vector_store = SimpleVectorStore.load(VECTOR_STORE_PATH, embeddings)
-            return vector_store
+            try:
+                vector_store = SimpleVectorStore.load(VECTOR_STORE_PATH, embeddings)
+                return vector_store
+            except Exception as e:
+                logger.warning(f"Could not load existing store, creating new: {e}")
+                vector_store = SimpleVectorStore(embeddings)
+                return vector_store
 
         # Create new vector store from texts
-        if texts:
+        if texts and len(texts) > 0:
             logger.info(f"Creating new vector store with {len(texts)} texts")
             vector_store = SimpleVectorStore(embeddings)
             vector_store.add_texts(texts)
-            vector_store.save(VECTOR_STORE_PATH)
+            try:
+                vector_store.save(VECTOR_STORE_PATH)
+            except Exception as e:
+                logger.warning(f"Could not save vector store: {e}")
             return vector_store
 
         # If no existing store and no texts provided, create empty store
         logger.info("Creating empty vector store")
         vector_store = SimpleVectorStore(embeddings)
-        vector_store.save(VECTOR_STORE_PATH)
+        try:
+            vector_store.save(VECTOR_STORE_PATH)
+        except Exception as e:
+            logger.warning(f"Could not save empty vector store: {e}")
         return vector_store
 
     except Exception as e:
         logger.error(f"Error creating/loading vector store: {e}")
-        raise
+        # Return empty store as fallback instead of raising
+        try:
+            return SimpleVectorStore(OpenAIEmbeddings(model="text-embedding-3-small"))
+        except:
+            return None
 
 
 def add_documents_to_store(texts: List[str]):
