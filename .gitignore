@@ -1,0 +1,10 @@
+*.db
+*.pyc
+__pycache__/
+.env
+.DS_Store
+venv/
+env/
+.pytest_cache/
+faiss_index/
+*.log
