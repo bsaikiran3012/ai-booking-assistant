@@ -19,35 +19,175 @@ def show_admin_dashboard():
     """Display the admin dashboard."""
     st.set_page_config(page_title="Admin Dashboard", layout="wide")
 
-    st.title("📊 Admin Dashboard")
-    st.markdown("---")
+    # Custom CSS for admin dashboard with dark theme
+    st.markdown("""
+    <style>
+        /* Main container styling */
+        .main {
+            background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+        }
+        
+        /* Header styling */
+        .admin-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 2rem;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+        
+        .admin-header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .admin-header p {
+            font-size: 0.95rem;
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        /* Stat cards */
+        .stat-card {
+            background: #1a1f2e;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #2a3f5f;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2a5298;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b0b0b0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Data table styling */
+        .stDataFrame {
+            background: #1a1f2e !important;
+            color: #e0e0e0 !important;
+        }
+        
+        /* Button styling */
+        .stButton>button {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.75rem 1.5rem !important;
+            font-size: 1rem !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            transition: transform 0.2s, box-shadow 0.2s !important;
+        }
+        
+        .stButton>button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 15px rgba(42, 82, 152, 0.4) !important;
+        }
+        
+        /* Input styling */
+        .stTextInput>div>div>input,
+        .stPasswordInput>div>div>input,
+        .stSelectbox>div>div>select,
+        .stDateInput>div>div>input {
+            background-color: #1a1f2e !important;
+            border-radius: 8px !important;
+            border: 2px solid #2a3f5f !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .stTextInput>div>div>input:focus,
+        .stPasswordInput>div>div>input:focus,
+        .stSelectbox>div>div>select:focus,
+        .stDateInput>div>div>input:focus {
+            border: 2px solid #2a5298 !important;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1) !important;
+        }
+        
+        /* Sidebar styling */
+        .stSidebar {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+        }
+        
+        /* Text styling */
+        .stMarkdown {
+            color: #e0e0e0;
+        }
+        
+        /* Info card */
+        .stInfo {
+            background-color: #1a2f4d !important;
+            color: #60a5fa !important;
+        }
+        
+        /* Success message */
+        .stSuccess {
+            background-color: #1a4d2e !important;
+            color: #4ade80 !important;
+        }
+        
+        /* Error message */
+        .stError {
+            background-color: #4d1a1a !important;
+            color: #f87171 !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
     # Authentication check (basic)
     if "admin_authenticated" not in st.session_state:
         st.session_state.admin_authenticated = False
 
     if not st.session_state.admin_authenticated:
-        st.warning("⚠️ Admin access required")
-        password = st.text_input("Enter admin password:", type="password")
-        if password:
-            # In production, use environment variable or proper authentication
-            if password == "admin123":  # This should be in environment variable
-                st.session_state.admin_authenticated = True
-                st.rerun()
-            else:
-                st.error("Invalid password")
+        st.markdown("""
+        <div class="admin-header">
+            <h1>🔐 Admin Access Required</h1>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.info("🔒 Enter your admin password to proceed", icon="🔐")
+            password = st.text_input("Admin Password:", type="password", key="admin_pwd")
+            if password:
+                # In production, use environment variable or proper authentication
+                if password == "admin123":  # This should be in environment variable
+                    st.session_state.admin_authenticated = True
+                    st.rerun()
+                else:
+                    st.error("❌ Invalid password")
         return
+
+    # Admin header
+    st.markdown("""
+    <div class="admin-header">
+        <h1>📊 Admin Dashboard</h1>
+        <p>Manage bookings and view analytics</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Admin menu
     admin_option = st.sidebar.radio(
-        "Admin Menu", ["View All Bookings", "Search Bookings", "Analytics"]
+        "Admin Menu", ["📋 View All Bookings", "🔍 Search Bookings", "📈 Analytics"]
     )
 
-    if admin_option == "View All Bookings":
+    if admin_option == "📋 View All Bookings":
         show_all_bookings()
-    elif admin_option == "Search Bookings":
+    elif admin_option == "🔍 Search Bookings":
         search_bookings_ui()
-    elif admin_option == "Analytics":
+    elif admin_option == "📈 Analytics":
         show_analytics()
 
     # Logout button

@@ -39,11 +39,152 @@ logger = logging.getLogger(__name__)
 
 # Page configuration
 st.set_page_config(
-    page_title="AI Booking Assistant",
+    page_title="Professional Booking System",
     page_icon="📅",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Custom CSS for modern UI
+st.markdown("""
+<style>
+    /* Dark theme colors */
+    :root {
+        --primary-color: #667eea;
+        --secondary-color: #764ba2;
+        --dark-bg: #0f1419;
+        --card-bg: #1a1f2e;
+        --text-light: #e0e0e0;
+        --border-color: #2a3f5f;
+    }
+    
+    /* Main container styling */
+    .main {
+        background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+    }
+    
+    /* Header styling */
+    .header-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 10px;
+        color: white;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .header-container h1 {
+        font-size: 2.5rem;
+        margin: 0;
+        font-weight: 700;
+    }
+    
+    .header-container p {
+        font-size: 1.1rem;
+        margin: 0.5rem 0 0 0;
+        opacity: 0.95;
+    }
+    
+    /* Card styling */
+    .info-card {
+        background: #1a1f2e;
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        margin-bottom: 1rem;
+        color: #e0e0e0;
+    }
+    
+    .info-card h3 {
+        color: #667eea;
+        margin-top: 0;
+    }
+    
+    .info-card ul {
+        color: #b0b0b0;
+    }
+    
+    /* Chat message styling */
+    .chat-container {
+        background: #1a1f2e;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Button styling */
+    .stButton>button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.75rem 1.5rem !important;
+        font-size: 1rem !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        transition: transform 0.2s, box-shadow 0.2s !important;
+    }
+    
+    .stButton>button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    /* Input styling */
+    .stTextInput>div>div>input,
+    .stSelectbox>div>div>select,
+    .stDateInput>div>div>input,
+    .stTimeInput>div>div>input {
+        background-color: #1a1f2e !important;
+        border-radius: 8px !important;
+        border: 2px solid #2a3f5f !important;
+        color: #e0e0e0 !important;
+    }
+    
+    .stTextInput>div>div>input:focus,
+    .stSelectbox>div>div>select:focus,
+    .stDateInput>div>div>input:focus,
+    .stTimeInput>div>div>input:focus {
+        border: 2px solid #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    /* Sidebar styling */
+    .stSidebar {
+        background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+    }
+    
+    /* Text styling */
+    .stMarkdown {
+        color: #e0e0e0;
+    }
+    
+    /* Success message */
+    .stSuccess {
+        background-color: #1a4d2e !important;
+        color: #4ade80 !important;
+    }
+    
+    /* Error message */
+    .stError {
+        background-color: #4d1a1a !important;
+        color: #f87171 !important;
+    }
+    
+    /* Info message */
+    .stInfo {
+        background-color: #1a2f4d !important;
+        color: #60a5fa !important;
+    }
+    
+    /* Warning message */
+    .stWarning {
+        background-color: #4d3a1a !important;
+        color: #fbbf24 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Initialize database
 initialize_db()
@@ -179,16 +320,19 @@ Your booking has been successfully saved.
 
 def main():
     """Main application function."""
-    st.title("📅 AI Booking Assistant")
-    st.markdown(
-        "Your intelligent booking and information assistant powered by AI and RAG."
-    )
+    # Header
+    st.markdown("""
+    <div class="header-container">
+        <h1>📅 Professional Booking System</h1>
+        <p>Intelligent AI-Powered Booking Assistant</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Sidebar configuration
     st.sidebar.title("⚙️ Configuration")
 
     # Navigation
-    page = st.sidebar.radio("Navigation", ["Chat", "Admin Dashboard"])
+    page = st.sidebar.radio("Navigation", ["💬 Chat & Booking", "📊 Admin Dashboard"])
 
     if page == "Admin Dashboard":
         st.sidebar.markdown("---")
@@ -199,7 +343,7 @@ def main():
 
     # Chat page
     st.sidebar.markdown("---")
-    st.sidebar.subheader("📄 Document Upload")
+    st.sidebar.markdown("### 📄 Document Upload")
 
     uploaded_pdf = st.sidebar.file_uploader(
         "Upload PDF for knowledge base:", type=["pdf"], key="pdf_uploader"
@@ -207,7 +351,7 @@ def main():
 
     if uploaded_pdf is not None:
         try:
-            with st.sidebar.spinner("Processing PDF..."):
+            with st.sidebar.spinner("🔄 Processing PDF..."):
                 # Extract text
                 pdf_text = extract_text_from_pdf(uploaded_pdf)
 
@@ -227,14 +371,27 @@ def main():
             logger.error(f"Error processing PDF: {e}")
 
     # Chat interface
-    st.markdown("---")
+    st.markdown("""
+    <div class="info-card">
+        <h3>💬 How to Use</h3>
+        <p>Type your booking request or ask questions about our services. Examples:</p>
+        <ul>
+            <li>"I want to book a consultation"</li>
+            <li>"What services do you offer?"</li>
+            <li>"Schedule me for next Monday"</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Display conversation history
-    display_chat_history()
+    with st.container():
+        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+        display_chat_history()
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Chat input
     user_input = st.chat_input(
-        "Type your message or booking request...",
+        "💭 Type your message or booking request...",
         key="chat_input",
     )
 
