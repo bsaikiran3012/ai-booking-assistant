@@ -4,3 +4,5 @@ __pycache__/
 .streamlit/secrets.toml
 booking_assistant.db
 .env
+vector_store.pkl
+faiss_index/
